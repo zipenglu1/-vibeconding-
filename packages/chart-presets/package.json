@@ -1,0 +1,17 @@
+{
+  "name": "@bi/chart-presets",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.1.0",
+    "echarts": "^5.5.0",
+    "echarts-for-react": "^3.0.0"
+  },
+  "dependencies": {
+    "@bi/ts-contracts": "workspace:*"
+  }
+}

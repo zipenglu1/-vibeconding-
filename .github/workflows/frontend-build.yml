@@ -1,0 +1,40 @@
+name: Frontend Build
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+      - "fix/**"
+  pull_request:
+
+jobs:
+  frontend-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint frontend workspace
+        run: pnpm lint:frontend
+
+      - name: Typecheck desktop frontend
+        run: pnpm -C apps/desktop exec tsc --noEmit
+
+      - name: Build desktop frontend
+        run: pnpm -C apps/desktop build

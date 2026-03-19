@@ -1,0 +1,16 @@
+[package]
+name = "export-runtime"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+analytics-core = { path = "../analytics-core" }
+connectors = { path = "../connectors" }
+csv = "1"
+metadata-store = { path = "../metadata-store" }
+rust_xlsxwriter = "0.79"
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

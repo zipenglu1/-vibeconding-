@@ -1,0 +1,55 @@
+name: Rust Validation
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+      - "fix/**"
+  pull_request:
+
+jobs:
+  rust-validation:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable-x86_64-pc-windows-msvc
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry and target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\.cargo\registry
+            ~\.cargo\git
+            target
+          key: rust-validation-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            rust-validation-${{ runner.os }}-
+
+      - name: Lint Rust workspace
+        run: cargo +stable-x86_64-pc-windows-msvc fmt --all --check
+
+      - name: Validate lightweight Rust crates
+        run: |
+          cargo +stable-x86_64-pc-windows-msvc test -p job-runner
+          cargo +stable-x86_64-pc-windows-msvc test -p telemetry
+          cargo +stable-x86_64-pc-windows-msvc test -p export-runtime
+          cargo +stable-x86_64-pc-windows-msvc test -p metadata-store
+
+      - name: Warm heavy analytics dependency path
+        run: |
+          cargo +stable-x86_64-pc-windows-msvc test -p analytics-core --no-run
+          cargo +stable-x86_64-pc-windows-msvc test -p connectors --no-run
+          cargo +stable-x86_64-pc-windows-msvc test -p metadata-store --no-run
+
+      - name: Validate desktop crate
+        run: |
+          cargo +stable-x86_64-pc-windows-msvc test -p desktop --lib
+          cargo +stable-x86_64-pc-windows-msvc test -p desktop --no-run

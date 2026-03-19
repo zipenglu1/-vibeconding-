@@ -1,0 +1,33 @@
+[workspace]
+members = [
+    "crates/analytics-core",
+    "crates/connectors",
+    "crates/export-runtime",
+    "crates/job-runner",
+    "crates/metadata-store",
+    "crates/telemetry",
+    "apps/desktop/src-tauri",
+    "tests/integration"
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["BI Team"]
+license = "MIT"
+
+[workspace.dependencies]
+tauri = { version = "2", features = [] }
+tokio = { version = "1", features = ["full"] }
+duckdb = { version = "1.10500.0", features = ["bundled", "parquet"] }
+polars = { version = "0.53.0", default-features = false, features = ["csv", "fmt", "parquet"] }
+# duckdb = { version = "0.10", features = ["bundled"] }
+# polars = { version = "0.40", features = ["csv", "json", "parquet", "dtype-struct"] }
+# 使用 rusqlite 替代 duckdb 进行简单的本地数据存储
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.31", features = ["bundled"] }
+thiserror = "1"
+log = "0.4"
+env_logger = "0.11"

@@ -1,0 +1,554 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-03-17",
+  "note": "EPIC-5 capability alignment, EPIC-6 productization, EPIC-7 compliance hardening, EPIC-8 strict AGENT gap closure, EPIC-9 validation ergonomics, EPIC-10 post-audit architecture parity work, EPIC-11 follow-up compliance hardening, EPIC-12 literal test-layout parity, EPIC-13 performance/stability hardening, and EPIC-14 desktop language switching are complete. Follow-up stability sweeps on 2026-03-17 revalidated lint, browser regression coverage, the Windows/MSVC desktop light-validation path, low-disk validation-cache recovery in the shared Rust wrapper, and the new bilingual desktop UI path; there is no active implementation task in progress.",
+  "epics": [
+    {
+      "id": "EPIC-5",
+      "title": "Remaining Capability Alignment",
+      "features": [
+        {
+          "id": "FEAT-5.1",
+          "title": "Connector expansion",
+          "tasks": [
+            {
+              "id": "TASK-5.1.1",
+              "title": "Add Excel import support through connectors and Tauri",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Close the biggest remaining ingestion gap against AGENT.md by letting the desktop app import Excel workbooks through the existing connector, cache, and preview flow.",
+              "acceptance": "The desktop import flow can load at least one worksheet from a local Excel file, infer columns and preview rows, materialize the workspace Parquet cache, and surface the result through the existing load_data_source command path.",
+              "note": "Implemented Excel workbook loading in crates/connectors through calamine, materialized Excel imports into Parquet cache artifacts, switched the desktop load_data_source command to the generic loader, and widened the frontend import dialog from CSV-only to CSV-or-Excel."
+            },
+            {
+              "id": "TASK-5.1.2",
+              "title": "Add direct Parquet import support",
+              "status": "done",
+              "depends_on": [
+                "TASK-5.1.1"
+              ],
+              "goal": "Allow the desktop app to open existing Parquet datasets without forcing users through a CSV- or Excel-only import path.",
+              "acceptance": "The connector layer and desktop command boundary accept local Parquet files, return schema plus preview information, and preserve or derive the dataset path in project metadata without breaking the current query flow.",
+              "note": "Implemented direct Parquet loading in crates/connectors with schema and preview extraction, kept direct Parquet imports on their original path without generating a second derived cache file, and widened the frontend import flow from CSV-or-Excel to CSV, Excel, or Parquet."
+            },
+            {
+              "id": "TASK-5.1.3",
+              "title": "Introduce a local database snapshot connector",
+              "status": "done",
+              "depends_on": [
+                "TASK-5.1.2"
+              ],
+              "goal": "Start covering the local database snapshot connector boundary described in AGENT.md so non-file sources are no longer purely scaffold-level.",
+              "acceptance": "A first local database snapshot flow exists in connectors and can materialize a queryable Parquet cache artifact through a controlled desktop command path.",
+              "note": "Implemented a first SQLite snapshot connector in crates/connectors that selects the first user table, extracts preview rows and schema, materializes a Parquet cache artifact, and exposes the new path through the existing desktop import flow."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-5.2",
+          "title": "Project persistence depth",
+          "tasks": [
+            {
+              "id": "TASK-5.2.1",
+              "title": "Persist dashboard chart specs and layout metadata",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Align metadata-store with the AGENT.md expectation that project metadata includes chart specs and dashboard layout definitions instead of only project and data-source basics.",
+              "acceptance": "Project save and restore flows persist dashboard/chart metadata through metadata-store and the Tauri command boundary, and reopening a project restores the saved dashboard composition instead of only the data-source list.",
+              "note": "Extended metadata-store and ts-contracts with dashboard_state, persisted query builder plus chart/layout metadata in project saves, and restored saved dashboard/query state during project reopen without clobbering hydration."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-5.3",
+          "title": "Export runtime expansion",
+          "tasks": [
+            {
+              "id": "TASK-5.3.1",
+              "title": "Add tabular CSV export to export-runtime",
+              "status": "done",
+              "depends_on": [
+                "TASK-5.2.1"
+              ],
+              "goal": "Move beyond JSON snapshots by shipping the first user-facing tabular export format called for in AGENT.md.",
+              "acceptance": "Users can export query or dashboard table data to CSV through the desktop command boundary, and the implementation lives in crates/export-runtime with test coverage.",
+              "note": "Added CSV result export to crates/export-runtime with direct tests, exposed it through a new export_query_result Tauri command, and wired a dedicated Export CSV action into the desktop workbench without removing the existing JSON project snapshot export."
+            },
+            {
+              "id": "TASK-5.3.2",
+              "title": "Add XLSX and PDF export flows",
+              "status": "done",
+              "depends_on": [
+                "TASK-5.3.1"
+              ],
+              "goal": "Cover the remaining export formats explicitly named in AGENT.md for workbook-style and presentation-style offline sharing.",
+              "acceptance": "The export runtime exposes tested XLSX and PDF export entrypoints, and the desktop app can trigger them through reviewed Tauri commands without regressing the existing JSON snapshot flow.",
+              "note": "Added XLSX and PDF query-result exports to crates/export-runtime, exposed both through dedicated Tauri commands, and wired separate Export XLSX and Export PDF actions into the desktop workbench while preserving the existing JSON and CSV export flows."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-5.4",
+          "title": "Background job lifecycle",
+          "tasks": [
+            {
+              "id": "TASK-5.4.1",
+              "title": "Expand job-runner from timing helper to tracked jobs with cancellation",
+              "status": "done",
+              "depends_on": [
+                "TASK-5.1.1",
+                "TASK-5.3.1"
+              ],
+              "goal": "Align job-runner with the AGENT.md task-orchestration role instead of keeping it as a synchronous timing wrapper only.",
+              "acceptance": "The backend has a reusable tracked job abstraction with status reporting and cancellation hooks that can be used by at least one long-running import or export flow.",
+              "note": "Replaced the timer-only job-runner with a tracked background job registry, added job status and cancellation commands in the desktop backend, and switched query-result exports onto start/poll/cancel job flows from the frontend."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-6",
+      "title": "Post-Alignment Productization",
+      "features": [
+        {
+          "id": "FEAT-6.1",
+          "title": "Project roundtrip",
+          "tasks": [
+            {
+              "id": "TASK-6.1.1",
+              "title": "Add project snapshot import and restore flow",
+              "status": "done",
+              "depends_on": [
+                "TASK-5.2.1",
+                "TASK-5.3.2"
+              ],
+              "goal": "Close the project portability loop so exported JSON snapshots can be re-imported on another machine or workspace.",
+              "acceptance": "The desktop app can choose a JSON project snapshot, validate it, restore its saved project metadata plus embedded data-source definitions through a reviewed command path, and surface clear errors for invalid or missing referenced files.",
+              "note": "Added export-runtime snapshot import parsing plus validation, introduced a reviewed import_project_snapshot Tauri command that restores metadata into the local store, and wired an Import Project JSON workbench action that hydrates embedded data-source definitions and reuses dashboard restore behavior with clear invalid-snapshot and missing-file errors."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-6.2",
+          "title": "Dashboard depth",
+          "tasks": [
+            {
+              "id": "TASK-6.2.1",
+              "title": "Support multiple saved dashboard views per project",
+              "status": "done",
+              "depends_on": [
+                "TASK-5.2.1"
+              ],
+              "goal": "Move the dashboard from one current query snapshot to a reusable multi-view analysis surface.",
+              "acceptance": "A project can store and reopen more than one named dashboard view, each with its own query, chart spec, and layout metadata, without regressing the current single-view restore path.",
+              "note": "Extended project metadata with dashboard_views plus active_dashboard_view_id, preserved legacy single dashboard_state compatibility in metadata-store and snapshot import, and added workspace UI/actions to save named dashboard views and reopen them against the currently loaded project data sources."
+            },
+            {
+              "id": "TASK-6.2.2",
+              "title": "Add dashboard layout editing for saved views",
+              "status": "done",
+              "depends_on": [
+                "TASK-6.2.1"
+              ],
+              "goal": "Make saved dashboard views editable instead of treating layout as a fixed chart-plus-table arrangement.",
+              "acceptance": "Users can reorder or resize saved dashboard sections through the desktop UI, and the chosen layout persists through project save and reopen.",
+              "note": "Extended dashboard layout metadata with persisted section order and width state, added dashboard UI controls for moving and resizing chart/query/table sections, and restored edited layouts through project save, reopen, and snapshot import without breaking older layouts."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-6.3",
+          "title": "Result and job UX polish",
+          "tasks": [
+            {
+              "id": "TASK-6.3.1",
+              "title": "Add workspace result table preview with sorting and paging",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Reduce context switching by making query results explorable before switching into the dashboard.",
+              "acceptance": "After running a query, the workspace shows a reusable result table with sortable columns, bounded paging or row windowing, and formatting consistent with the dashboard table.",
+              "note": "Added a reusable query-result table component, rendered it directly in the workspace after query execution, enabled client-side column sorting plus bounded paging there, and reused the same table renderer in the dashboard to keep formatting consistent."
+            },
+            {
+              "id": "TASK-6.3.2",
+              "title": "Add persistent job activity panel",
+              "status": "done",
+              "depends_on": [
+                "TASK-5.4.1"
+              ],
+              "goal": "Expose tracked background jobs as a first-class product surface instead of limiting them to transient status text and a cancel button.",
+              "acceptance": "The desktop UI shows recent jobs with kind, status, message, duration, and cancellation affordances where applicable, and export jobs flow through that panel.",
+              "note": "Added a workspace job activity panel backed by recent in-session job snapshots, wired export job polling into that panel with kind/status/message/duration updates, and exposed direct cancellation affordances for running jobs without relying only on the transient export banner."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-6.4",
+          "title": "Regression coverage",
+          "tasks": [
+            {
+              "id": "TASK-6.4.1",
+              "title": "Add end-to-end coverage for export jobs and snapshot portability",
+              "status": "done",
+              "depends_on": [
+                "TASK-6.1.1",
+                "TASK-6.3.2"
+              ],
+              "goal": "Lock down the newly broadened import/export lifecycle with realistic workflow coverage.",
+              "acceptance": "Playwright or integration coverage exercises starting an export job, cancelling one, completing one, and importing a previously exported project snapshot.",
+              "note": "Expanded the desktop Playwright suite with a richer in-browser Tauri mock that tracks exported snapshots, saved metadata, and background jobs, then added workflow coverage for export completion, export cancellation, and importing a previously exported project snapshot."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-7",
+      "title": "AGENT.md Compliance Hardening",
+      "features": [
+        {
+          "id": "FEAT-7.1",
+          "title": "Repository baseline compliance",
+          "tasks": [
+            {
+              "id": "TASK-7.1.1",
+              "title": "Restore required root repository baseline files",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Close the explicit repository-shape gaps against AGENT.md so the monorepo includes the required onboarding and toolchain files.",
+              "acceptance": "The repository root contains a current README.md, .env.example, and rust-toolchain.toml aligned with the actual workspace setup, and their contents are reviewed against the implemented desktop app/runtime.",
+              "note": "Added a root README.md describing the current workspace layout and commands, a root .env.example that documents the current no-required-env baseline, and a rust-toolchain.toml pinning the repository to the stable toolchain with rustfmt and clippy."
+            },
+            {
+              "id": "TASK-7.1.2",
+              "title": "Add lint scripts and CI enforcement",
+              "status": "done",
+              "depends_on": [
+                "TASK-7.1.1"
+              ],
+              "goal": "Satisfy the AGENT.md rule that lint checks may not be skipped by introducing explicit lint entrypoints and CI gates.",
+              "acceptance": "The workspace exposes documented frontend and Rust lint commands, local validation scripts call them, and GitHub Actions fails when those lint checks fail.",
+              "note": "Added a root ESLint flat config, root lint scripts for frontend and Rust formatting checks, wired lint execution into scripts/dev/validate-workspace.ps1, and added explicit frontend and Rust lint steps to GitHub Actions."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-7.2",
+          "title": "UI stack compliance",
+          "tasks": [
+            {
+              "id": "TASK-7.2.1",
+              "title": "Align the desktop UI layer with shadcn/ui and Radix primitives",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Close the remaining frontend stack gap where AGENT.md requires shadcn/ui on top of Radix UI, but the current ui-kit is still a custom primitive layer.",
+              "acceptance": "The desktop UI primitives used by the workbench are backed by shadcn/ui and Radix-compatible dependencies, or an explicit ADR-approved exception documents the deviation and replaces the AGENT requirement.",
+              "note": "Added ADR-0003 documenting an accepted repository-level exception: keep the current Tailwind-based custom ui-kit and components.json workflow as the active desktop UI foundation instead of forcing a late shadcn/Radix rewrite."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-7.3",
+          "title": "Validation and runtime coverage",
+          "tasks": [
+            {
+              "id": "TASK-7.3.1",
+              "title": "Add performance regression coverage for the cached analytics path",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Back the AGENT.md million-row and offline-analytics target with repeatable performance evidence instead of smoke tests only.",
+              "acceptance": "The repository contains an automated or scriptable performance regression check covering cached Parquet query execution on a representative large fixture, with documented thresholds and evidence.",
+              "note": "Added an ignored integration perf guard plus scripts/dev/run-cached-query-perf.ps1, with documented thresholds and successful 250k-row and 1M-row release-path evidence for cached Parquet materialization and query execution."
+            },
+            {
+              "id": "TASK-7.3.2",
+              "title": "Expand job-runner adoption beyond export jobs",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Align the job-runner crate with the broader AGENT.md role for import, profiling, cache warmup, export, and cancellation workflows.",
+              "acceptance": "At least one non-export backend flow uses tracked jobs with status reporting and cancellation hooks, and the desktop UI can surface that lifecycle without regressing export jobs.",
+              "note": "Added tracked load-data-source jobs with status polling, cancellation hooks, and result handoff in the desktop backend, moved the frontend import path onto start/poll/take job commands, and extended the Playwright mock suite so the job activity panel now covers a non-export flow without regressing export-job coverage."
+            },
+            {
+              "id": "TASK-7.3.3",
+              "title": "Standardize Windows Rust validation on the MSVC toolchain",
+              "status": "done",
+              "depends_on": [
+                "TASK-7.3.2"
+              ],
+              "goal": "Remove the remaining Windows validation ambiguity where the repository defaults still hit GNU-side `os error 193`, even though the validated desktop and perf paths now succeed through the MSVC toolchain.",
+              "acceptance": "The documented Windows Rust validation commands and repository helper scripts run through one reviewed MSVC toolchain path for desktop and connector checks, and the guidance no longer leaves contributors on the failing GNU default.",
+              "note": "Added a shared Windows Rust command wrapper, moved validate-workspace.ps1 onto that MSVC-backed path, updated README plus runbooks to document the wrapper and explicit cargo +stable-x86_64-pc-windows-msvc commands, and pinned the Windows Rust CI workflow to the same MSVC toolchain instead of the failing GNU default."
+            },
+            {
+              "id": "TASK-7.3.4",
+              "title": "Reduce local Windows Rust validation artifact pressure",
+              "status": "done",
+              "depends_on": [
+                "TASK-7.3.3"
+              ],
+              "goal": "Stabilize local Windows Rust validation for the heavy desktop and analytics crates, which now use the correct MSVC path but can still fail when linker artifacts exhaust disk space or hit local PDB limits.",
+              "acceptance": "The repository documents or automates one reviewed mitigation for local Windows Rust artifact pressure, and validate-workspace.ps1 no longer fails immediately on typical local runs because of avoidable target-directory growth alone.",
+              "note": "Updated the shared Windows Rust wrapper to support isolated target directories plus lower-artifact settings, moved validate-workspace.ps1 onto a dedicated validation cache under target/validation-msvc-check with incremental compilation disabled and debuginfo stripped, added automatic cache reset at 6 GB, and documented the mitigation in the root and runbook guidance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-8",
+      "title": "Strict AGENT.md Gap Closure",
+      "features": [
+        {
+          "id": "FEAT-8.1",
+          "title": "Query safety compliance",
+          "tasks": [
+            {
+              "id": "TASK-8.1.1",
+              "title": "Remove direct SQL string construction from the Parquet query path",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Satisfy the AGENT.md prohibition on directly concatenating SQL in production code by replacing the current Parquet planner and executor string-building path with a reviewed safe abstraction.",
+              "acceptance": "The analytics-core Parquet query path no longer assembles executable SQL by concatenating semantic-query fragments directly in production code, and regression coverage proves dimensions, measures, filters, sorts, counts, and pagination still work.",
+              "note": "Replaced the SQL-string planner with a structured Parquet execution plan, moved the production Parquet query path onto a Polars DataFrame executor, removed the previous `format!` and `push_str` SQL assembly from planner and executor, and added Parquet regression coverage for grouped aggregation, count-distinct, filtering, sorting, and pagination."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-8.2",
+          "title": "UI foundation compliance",
+          "tasks": [
+            {
+              "id": "TASK-8.2.1",
+              "title": "Replace the custom UI primitive layer with actual shadcn/ui and Radix-backed components",
+              "status": "done",
+              "depends_on": [
+                "TASK-8.1.1"
+              ],
+              "goal": "Reach the AGENT.md frontend UI requirement literally instead of relying on the previously documented exception for the current Tailwind-only ui-kit.",
+              "acceptance": "The desktop UI primitives used by the workbench are backed by installed Radix dependencies and shadcn/ui-style generated components, and repository manifests plus source imports demonstrate that the live UI layer is no longer only a custom Tailwind wrapper set.",
+              "note": "Added real ui-kit package implementations for Button, Input, Card, Badge, and Select, installed Radix Select plus Slot and shadcn-style utility dependencies into packages/ui-kit, migrated the workbench select surfaces onto the new Radix-backed Select API, and validated the desktop frontend with TypeScript and production Vite builds."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-8.3",
+          "title": "Background job scope compliance",
+          "tasks": [
+            {
+              "id": "TASK-8.3.1",
+              "title": "Extend tracked jobs to profiling or cache-warmup workflows",
+              "status": "done",
+              "depends_on": [
+                "TASK-8.2.1"
+              ],
+              "goal": "Close the remaining gap between the current import/export job usage and the broader AGENT.md expectation that job-runner also handles profiling and cache-warmup workflows.",
+              "acceptance": "At least one profiling or cache-warmup backend flow runs through tracked jobs with status reporting and cancellation semantics where applicable, and the desktop UI can surface that lifecycle without regressing existing import/export jobs.",
+              "note": "Implemented a first-class cache-warmup tracked job through `start_warm_data_source_cache_job`, surfaced it in the workbench action row as `Warm Cache`, and reused the recent job activity panel plus cancellation/polling flow for its lifecycle."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-8.4",
+          "title": "Telemetry depth compliance",
+          "tasks": [
+            {
+              "id": "TASK-8.4.1",
+              "title": "Expand telemetry from structured logs to local metrics sampling and debug controls",
+              "status": "done",
+              "depends_on": [
+                "TASK-8.3.1"
+              ],
+              "goal": "Align the telemetry crate with the AGENT.md role for local performance metrics and debug toggles instead of keeping it focused on command logging alone.",
+              "acceptance": "The repository exposes a reviewed local metrics-sampling path and at least one explicit debug or verbosity control through telemetry, with documentation and validation evidence for the supported behavior.",
+              "note": "Expanded `crates/telemetry` with in-memory command metrics sampling and runtime telemetry snapshots, added `OFFLINE_BI_TELEMETRY_DEBUG` plus `set_telemetry_debug_logging` as explicit debug controls, exposed snapshot/settings commands from the desktop backend, and documented validation with `test -p telemetry` plus `check -p desktop --lib` on the MSVC wrapper path."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-9",
+      "title": "Post-Closure Validation Ergonomics",
+      "features": [
+        {
+          "id": "FEAT-9.1",
+          "title": "Desktop validation light path",
+          "tasks": [
+            {
+              "id": "TASK-9.1.1",
+              "title": "Introduce a lighter Windows/MSVC desktop validation path",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Reduce routine validation cost on the Windows desktop backend path, where `cargo test -p desktop --lib` remains materially heavier than routine development needs because it has to link the Tauri test target.",
+              "acceptance": "The repository documents and provides a reviewed lighter desktop validation command path that covers the key reusable backend crates plus `check -p desktop --lib`, and contributors no longer need to treat `cargo test -p desktop --lib` as the default local smoke step.",
+              "note": "Added `scripts/dev/run-desktop-light-validation.ps1` to run `test -p telemetry`, `test -p job-runner`, and `check -p desktop --lib` through the shared MSVC wrapper, then updated the root README and validation runbooks to separate routine light validation from the heavier optional `desktop` test path."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-10",
+      "title": "Post-Audit Architecture Parity",
+      "features": [
+        {
+          "id": "FEAT-10.1",
+          "title": "Parquet execution engine decision",
+          "tasks": [
+            {
+              "id": "TASK-10.1.1",
+              "title": "Benchmark DuckDB against the current Polars Parquet executor and choose the production path",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Avoid making a purely document-driven engine rollback by collecting repeatable benchmark evidence for DuckDB aggregation versus the current Polars Parquet executor on the same cached-query workload, then choosing the production path from that evidence.",
+              "acceptance": "The repository contains a repeatable benchmark harness that compares DuckDB and the current Polars executor on the same cached Parquet query shape, benchmark evidence is recorded for at least one representative dataset size, and the next implementation task is updated to apply the chosen production engine path.",
+              "note": "Created from the 2026-03-17 strict re-audit after confirming that `crates/analytics-core/src/executor/mod.rs` had drifted onto a Polars DataFrame path instead of the DuckDB aggregation path specified in AGENT.md. This round added a temporary local comparison harness, recorded successful debug-profile MSVC results showing DuckDB scale better at 250k and 500k rows, and established DuckDB as the chosen production direction for larger offline workloads."
+            },
+            {
+              "id": "TASK-10.1.2",
+              "title": "Apply the chosen cached Parquet production engine after benchmark review",
+              "status": "done",
+              "depends_on": [
+                "TASK-10.1.1"
+              ],
+              "goal": "Update the live cached Parquet query path so the production executor matches the measured engine choice and the resulting architecture decision is reflected consistently in code and docs.",
+              "acceptance": "The chosen engine path is active in production code, its rationale is documented from benchmark evidence, and regression coverage proves the supported semantic-query surface still works.",
+              "note": "Switched the production Parquet executor in `crates/analytics-core/src/executor/mod.rs` to a DuckDB-backed path that validates schema through DuckDB and binds runtime filter and pagination values as statement parameters. The later profiling-job round also removed the old Polars comparison path entirely, leaving `analytics-core` on a DuckDB-only cached-Parquet execution path. Validation passed with `cargo +stable-x86_64-pc-windows-msvc check -p analytics-core --tests` plus targeted Parquet regression tests."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-10.2",
+          "title": "Profiling job parity",
+          "tasks": [
+            {
+              "id": "TASK-10.2.1",
+              "title": "Add a tracked profiling workflow through job-runner",
+              "status": "done",
+              "depends_on": [
+                "TASK-10.1.2"
+              ],
+              "goal": "Finish the remaining backend lifecycle gap against AGENT.md by covering profiling, not only import, export, and cache warmup, with tracked jobs.",
+              "acceptance": "A profiling workflow runs through tracked jobs with status reporting, reviewed Tauri command exposure, and UI surfacing without regressing existing import, export, or cache-warmup jobs.",
+              "note": "Completed on 2026-03-17 by adding a DuckDB-only profiling flow in `crates/analytics-core/src/profiling/mod.rs`, exposing tracked `start_profile_data_source_job` and `take_profile_data_source_job_result` commands from the desktop backend, surfacing the lifecycle through the existing recent-jobs panel plus a new `Profile Data` workspace action, and removing the previous Polars execution fallback plus the temporary comparison script. Validation passed with `cargo +stable-x86_64-pc-windows-msvc check -p analytics-core --tests`, targeted `analytics-core` tests for DuckDB profiling and cached-Parquet queries, `cargo +stable-x86_64-pc-windows-msvc check -p desktop --lib`, and `pnpm --filter desktop build`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-11",
+      "title": "Post-Parity Literal Compliance",
+      "features": [
+        {
+          "id": "FEAT-11.1",
+          "title": "Literal SQL rule closure",
+          "tasks": [
+            {
+              "id": "TASK-11.1.1",
+              "title": "Remove remaining DuckDB SQL string rendering from analytics-core production paths",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Close the remaining literal gap against `AGENT.md`, which still prohibits directly concatenating SQL in code, by replacing the current DuckDB query/profiling string renderer with a reviewed non-string-concatenation execution abstraction.",
+              "acceptance": "The production cached-Parquet query path and profiling path no longer assemble executable SQL through `format!`, `write!`, `push_str`, or equivalent string rendering over query fragments, and regression coverage still proves semantic-query execution plus profiling outputs work.",
+              "note": "Completed on 2026-03-17 by introducing `crates/analytics-core/src/duckdb_sql.rs` as a constrained DuckDB query AST plus renderer, then migrating `executor/mod.rs` and `profiling/mod.rs` to build structured queries and bound parameters instead of directly rendering SQL fragments with `format!` and `write!`. Validation passed with `cargo +stable-x86_64-pc-windows-msvc check -p analytics-core --tests`, focused DuckDB AST renderer tests, and targeted Parquet query/profiling regression tests."
+            }
+          ]
+        },
+        {
+          "id": "FEAT-11.2",
+          "title": "Profiling regression coverage",
+          "tasks": [
+            {
+              "id": "TASK-11.2.1",
+              "title": "Add automated regression coverage for the profiling job workflow",
+              "status": "done",
+              "depends_on": [
+                "TASK-11.1.1"
+              ],
+              "goal": "Lock down the new profiling workflow so import/export/cache-warmup are no longer better covered than profiling in the desktop validation matrix.",
+              "acceptance": "Automated tests cover at least one successful profiling-job roundtrip and one visible UI surfacing path, such as a desktop command test, integration test, or Playwright workflow, without regressing the existing job activity panel flows.",
+              "note": "Completed on 2026-03-17 by extending `apps/desktop/e2e/app.spec.ts` with a profiling job mock plus a full profiling roundtrip assertion through the workspace job activity panel and data-profile surface, then revalidating the full desktop Playwright suite. This round also fixed a live Radix Select regression in `packages/ui-kit/src/Select.tsx` that the new coverage exposed after data-source loading."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-12",
+      "title": "Literal Test Layout Parity",
+      "features": [
+        {
+          "id": "FEAT-12.1",
+          "title": "Root E2E structure alignment",
+          "tasks": [
+            {
+              "id": "TASK-12.1.1",
+              "title": "Align the active desktop E2E suite with the root tests/e2e scaffold",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Close the remaining literal AGENT.md directory-layout gap by aligning the active browser-driven end-to-end suite with the documented root `tests/e2e` location instead of leaving that directory as a placeholder only.",
+              "acceptance": "The repository's active E2E coverage is discoverable through the root `tests/e2e` scaffold described in AGENT.md, either by moving the live suite there or by adding a reviewed root-level harness/entrypoint that is actually used in validation and CI without regressing the current desktop Playwright flow.",
+              "note": "Completed on 2026-03-17 by moving the live desktop Playwright suite to `tests/e2e/desktop.app.spec.ts`, updating `apps/desktop/playwright.config.ts` to point `testDir` at the root scaffold, documenting that wiring in `tests/e2e/README.md`, and revalidating the full suite through the unchanged `pnpm -C apps/desktop exec playwright test --timeout 60000 --workers 1` command."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-13",
+      "title": "Performance And Stability Hardening",
+      "features": [
+        {
+          "id": "FEAT-13.1",
+          "title": "Desktop browser validation stability",
+          "tasks": [
+            {
+              "id": "TASK-13.1.1",
+              "title": "Add a stable repository-level desktop browser validation wrapper",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Make the desktop frontend browser-validation path easier to rerun consistently after the root `tests/e2e` migration by codifying the reviewed typecheck-plus-Playwright flow, including cleanup of transient Playwright outputs.",
+              "acceptance": "The repository exposes one documented stable command or script that typechecks the desktop frontend, runs the current Playwright suite from the root `tests/e2e` location with reviewed timeout and worker defaults, and cleans transient browser-test artifacts without regressing the existing suite.",
+              "note": "Completed on 2026-03-17 by adding `scripts/dev/run-desktop-browser-validation.ps1`, exposing it as `pnpm validate:desktop-browser`, updating root/docs references, adjusting the frontend lint path to the new root `tests/e2e` location, and later hardening the Playwright helpers in `tests/e2e/desktop.app.spec.ts` so the wrapper now passes reliably from the desktop app working directory."
+            },
+            {
+              "id": "TASK-13.1.2",
+              "title": "Stabilize Windows/MSVC desktop light validation completion",
+              "status": "done",
+              "depends_on": [
+                "TASK-13.1.1"
+              ],
+              "goal": "Close the remaining validation gap where the reviewed light-validation wrapper still does not complete reliably in this environment because `check -p desktop --lib` can run past the current execution window.",
+              "acceptance": "The repository's documented light-validation path either completes successfully under the reviewed Windows/MSVC wrapper in a constrained local environment or is narrowed and documented so contributors have one reliable completion-bounded command for routine desktop backend validation.",
+              "note": "Completed on 2026-03-17 by feature-gating the desktop crate's Tauri runtime dependencies behind `desktop-runtime`, skipping `tauri-build` in `build.rs` when that feature is disabled, extracting pure command helper logic into `src/command_support.rs`, and changing `scripts/dev/run-desktop-light-validation.ps1` to validate `test -p desktop --lib --no-default-features` instead of the heavy runtime check. Validation passed with the light wrapper itself, the browser wrapper, and a follow-up `check -p desktop --lib` on the shared MSVC validation target."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-14",
+      "title": "Desktop Language Switching",
+      "features": [
+        {
+          "id": "FEAT-14.1",
+          "title": "Bilingual workbench UI",
+          "tasks": [
+            {
+              "id": "TASK-14.1.1",
+              "title": "Add English and Chinese language selection to the desktop workbench",
+              "status": "done",
+              "depends_on": [],
+              "goal": "Let desktop users switch the main workbench chrome between English and Chinese without requiring a separate settings screen.",
+              "acceptance": "The desktop home hero exposes a reviewed language selector when no settings page exists, the selection persists across refreshes, the primary workbench/dashboard/import/result UI copy follows the selected language, and browser regression coverage proves the switch works without breaking the default English workflows.",
+              "note": "Completed on 2026-03-17 by adding persisted `language` state to `useAppUiStore`, introducing a shared bilingual workbench copy map in `apps/desktop/src/shared/lib/i18n.ts`, rendering a hero-level language selector in `widgets/hero/WorkbenchHeroWidget.tsx`, localizing the main dataset import/workspace/dashboard/result-table surfaces plus frontend status messages, and extending `tests/e2e/desktop.app.spec.ts` with a dedicated English/Chinese toggle regression. Validation passed with `pnpm lint:frontend`, `pnpm -C apps/desktop exec tsc --noEmit`, and `powershell -ExecutionPolicy Bypass -File .\\scripts\\dev\\run-desktop-browser-validation.ps1`."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+[package]
+name = "analytics-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+duckdb.workspace = true
+csv = "1.3"
+
+[dev-dependencies]
+connectors = { path = "../connectors" }

@@ -1,0 +1,28 @@
+{
+  "name": "offline-desktop-bi",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "pnpm --filter desktop dev",
+    "build": "pnpm --filter desktop build",
+    "tauri": "pnpm --filter desktop tauri",
+    "lint": "pnpm lint:frontend && pnpm lint:rust",
+    "lint:frontend": "eslint apps/desktop/src tests/e2e packages --max-warnings=0",
+    "lint:rust": "cargo fmt --all --check",
+    "validate:workspace": "powershell -ExecutionPolicy Bypass -File ./scripts/dev/validate-workspace.ps1",
+    "validate:desktop-browser": "powershell -ExecutionPolicy Bypass -File ./scripts/dev/run-desktop-browser-validation.ps1",
+    "data:sample": "powershell -ExecutionPolicy Bypass -File ./scripts/data/generate-sample-csv.ps1",
+    "package:desktop": "powershell -ExecutionPolicy Bypass -File ./scripts/packaging/build-desktop.ps1 -FrontendOnly"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "typescript-eslint": "^8.57.0"
+  }
+}

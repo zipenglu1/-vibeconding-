@@ -1,0 +1,14 @@
+[package]
+name = "integration-tests"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+analytics-core = { path = "../../crates/analytics-core" }
+connectors = { path = "../../crates/connectors" }
+export-runtime = { path = "../../crates/export-runtime" }
+metadata-store = { path = "../../crates/metadata-store" }
+serde_json.workspace = true
