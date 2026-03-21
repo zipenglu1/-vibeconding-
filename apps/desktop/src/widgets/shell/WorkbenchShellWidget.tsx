@@ -25,21 +25,22 @@ function WorkbenchShellWidget({
 }: WorkbenchShellWidgetProps) {
   const language = useAppUiStore((state) => state.language);
   const [surfacePage, setSurfacePage] = useState<"import" | "studio">("import");
+
   const surfaceCopy =
     language === "zh"
       ? {
-          railLabel: "页面",
-          importLabel: "导入清洗",
-          studioLabel: "分析工作台",
-          importHint: "先准备数据",
-          studioHint: "再做分析与仪表盘",
+          railLabel: "导航",
+          importLabel: "导入",
+          studioLabel: "工作区",
+          importHint: "数据导入",
+          studioHint: "查询分析",
         }
       : {
-          railLabel: "Pages",
+          railLabel: "Navigation",
           importLabel: "Import",
           studioLabel: "Studio",
-          importHint: "Prepare data first",
-          studioHint: "Then build analysis",
+          importHint: "Data import",
+          studioHint: "Query analysis",
         };
 
   useEffect(() => {
@@ -49,8 +50,6 @@ function WorkbenchShellWidget({
   }, [hero.viewMode]);
 
   useLayoutEffect(() => {
-    // Dashboard sections can leave the document scrolled past the shorter
-    // workspace content. Reset every known scroll root before paint.
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
@@ -68,17 +67,15 @@ function WorkbenchShellWidget({
 
   return (
     <div className="workbench-surface-shell">
-      <aside
-        className="surface-page-rail"
-        aria-label={surfaceCopy.railLabel}
-      >
-        <div className="surface-page-rail-badge">01 / 02</div>
+      <aside className="surface-page-rail" aria-label={surfaceCopy.railLabel}>
+        <div className="surface-page-rail-badge">DB</div>
         <button
           type="button"
           className={`surface-page-link${surfacePage === "import" ? " active" : ""}`}
           onClick={() => setSurfacePage("import")}
+          title={surfaceCopy.importHint}
         >
-          <span className="surface-page-link-index">01</span>
+          <span className="surface-page-link-index">I</span>
           <span className="surface-page-link-copy">
             <strong>{surfaceCopy.importLabel}</strong>
             <small>{surfaceCopy.importHint}</small>
@@ -88,8 +85,9 @@ function WorkbenchShellWidget({
           type="button"
           className={`surface-page-link${surfacePage === "studio" ? " active" : ""}`}
           onClick={() => setSurfacePage("studio")}
+          title={surfaceCopy.studioHint}
         >
-          <span className="surface-page-link-index">02</span>
+          <span className="surface-page-link-index">S</span>
           <span className="surface-page-link-copy">
             <strong>{surfaceCopy.studioLabel}</strong>
             <small>{surfaceCopy.studioHint}</small>
