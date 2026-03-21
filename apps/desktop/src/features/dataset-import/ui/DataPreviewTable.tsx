@@ -23,29 +23,23 @@ function DataPreviewTable({ columns, rows, totalRows }: DataPreviewTableProps) {
   return (
     <div className="grid gap-4">
       <div className="grid gap-3 md:grid-cols-3">
-        <div className="grid gap-1 rounded-2xl bg-slate-100/80 px-4 py-4">
-          <span className="text-2xl font-semibold text-slate-950">
+        <div className="metric-card">
+          <span className="text-2xl font-semibold text-[#1F2D3D]">
             {columns.length}
           </span>
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-            {copy.dataPreview.columns}
-          </span>
+          <span className="preview-label">{copy.dataPreview.columns}</span>
         </div>
-        <div className="grid gap-1 rounded-2xl bg-slate-100/80 px-4 py-4">
-          <span className="text-2xl font-semibold text-slate-950">
+        <div className="metric-card">
+          <span className="text-2xl font-semibold text-[#1F2D3D]">
             {rows.length}
           </span>
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-            {copy.dataPreview.previewRows}
-          </span>
+          <span className="preview-label">{copy.dataPreview.previewRows}</span>
         </div>
-        <div className="grid gap-1 rounded-2xl bg-slate-100/80 px-4 py-4">
-          <span className="text-2xl font-semibold text-slate-950">
+        <div className="metric-card">
+          <span className="text-2xl font-semibold text-[#1F2D3D]">
             {totalRows}
           </span>
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-            {copy.dataPreview.totalRows}
-          </span>
+          <span className="preview-label">{copy.dataPreview.totalRows}</span>
         </div>
       </div>
 
@@ -58,17 +52,17 @@ function DataPreviewTable({ columns, rows, totalRows }: DataPreviewTableProps) {
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white/80">
+      <div className="table-wrap">
         <table>
           <thead>
             <tr>
-              <th className="row-index sticky top-0 z-10 w-16 min-w-16 bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              <th className="row-index sticky top-0 z-10 w-16 min-w-16 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 #
               </th>
               {columns.map((column) => (
                 <th
                   key={column}
-                  className="sticky top-0 z-10 max-w-[280px] overflow-hidden bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 text-ellipsis whitespace-nowrap"
+                  className="sticky top-0 z-10 max-w-[280px] overflow-hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 text-ellipsis whitespace-nowrap"
                 >
                   {column}
                 </th>
@@ -77,11 +71,8 @@ function DataPreviewTable({ columns, rows, totalRows }: DataPreviewTableProps) {
           </thead>
           <tbody>
             {rows.map((row, index) => (
-              <tr
-                key={`${index}-${columns[0] ?? "row"}`}
-                className="even:bg-slate-50/60"
-              >
-                <td className="w-16 min-w-16 border-t border-slate-200 px-4 py-3 text-sm text-slate-500">
+              <tr key={`${index}-${columns[0] ?? "row"}`}>
+                <td className="w-16 min-w-16 border-t px-4 py-3 text-sm text-slate-500">
                   {index + 1}
                 </td>
                 {columns.map((column) => {
@@ -90,12 +81,12 @@ function DataPreviewTable({ columns, rows, totalRows }: DataPreviewTableProps) {
                     <td
                       key={`${index}-${column}`}
                       title={value}
-                      className="max-w-[280px] overflow-hidden border-t border-slate-200 px-4 py-3 text-sm text-slate-700 text-ellipsis whitespace-nowrap"
+                      className="max-w-[280px] overflow-hidden border-t px-4 py-3 text-sm text-[#33475B] text-ellipsis whitespace-nowrap"
                     >
                       {value.length > 0 ? (
                         value
                       ) : (
-                        <span className="italic text-slate-400">
+                        <span className="italic text-slate-500">
                           {copy.dataPreview.emptyCell}
                         </span>
                       )}

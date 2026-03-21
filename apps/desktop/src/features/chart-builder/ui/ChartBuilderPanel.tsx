@@ -77,7 +77,7 @@ function ChartBuilderPanel({
     <section className="chart-builder-panel">
       <div className="chart-toolbar">
         <div className="grid gap-1">
-          <h3 className="m-0 text-lg font-semibold tracking-tight text-slate-950">
+          <h3 className="m-0 text-lg font-semibold text-[#1F2D3D]">
             {copy.title}
           </h3>
           <p className="helper-text">{copy.description}</p>

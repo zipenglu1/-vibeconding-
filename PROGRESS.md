@@ -511,6 +511,7 @@ The desktop workbench chrome now also supports a persisted English/Chinese langu
 - The desktop crate now exposes a no-runtime support-layer validation path through `test -p desktop --lib --no-default-features`, and `scripts/dev/run-desktop-light-validation.ps1` now completes reliably on Windows/MSVC without depending on a cold Tauri runtime compile
 - A follow-up stability sweep reran frontend lint, desktop browser validation, and the desktop light-validation path successfully after one more `showWorkspace()` helper hardening pass in the root Playwright suite
 - The shared Windows Rust wrapper now clears oversized `validation-*` target caches under low-disk conditions and retries once after a failed low-space run, which recovered the desktop light-validation path after the validation cache had expanded enough to exhaust `E:` space
+- The desktop frontend now ships a `Database_Admin_Light` refresh with a light admin canvas, narrow left rail, three-column workspace layout, updated white card surfaces, and matching Figma review capture plus fresh Windows desktop bundle artifacts
 
 ## Next Goal
 

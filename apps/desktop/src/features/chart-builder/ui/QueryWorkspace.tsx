@@ -217,218 +217,181 @@ function QueryWorkspace({
 
         <div className="workspace-toolbar-grid">
           <div className="project-form query-actions">
-          <label className="field-label" htmlFor="project-name">
-            {copy.queryWorkspace.projectName}
-          </label>
-          <Input
-            id="project-name"
-            value={projectName}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              onProjectNameChange(event.currentTarget.value)
-            }
-            placeholder={copy.queryWorkspace.projectNamePlaceholder}
-            autoComplete="off"
-          />
-          <p className="helper-text">{copy.queryWorkspace.projectId(projectId)}</p>
-          <div className="action-row">
-            <Button
-              variant="secondary"
-              onClick={onSaveProject}
-              disabled={isPersisting}
-            >
-              {isPersisting
-                ? copy.queryWorkspace.working
-                : copy.queryWorkspace.saveProject}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onImportProject}
-              disabled={isPersisting || isExporting || isLoading}
-            >
-              {isPersisting
-                ? copy.queryWorkspace.working
-                : copy.queryWorkspace.importProjectJson}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onSaveDashboardView}
-              disabled={isPersisting || isLoading || !activeDataSource}
-            >
-              {copy.queryWorkspace.saveDashboardView}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onRestoreProject}
-              disabled={isPersisting || isLoading || !projectId.trim()}
-            >
-              {copy.queryWorkspace.openCurrentProject}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onExportProject}
-              disabled={isPersisting || isExporting || isLoading}
-            >
-              {isExporting
-                ? copy.queryWorkspace.exporting
-                : copy.queryWorkspace.exportProjectJson}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onWarmDataSourceCache}
-              disabled={
-                isPersisting ||
-                isExporting ||
-                isLoading ||
-                !activeDataSource ||
-                !(
-                  activeDataSource.info.cache_path ||
-                  activeDataSource.info.type === "parquet"
-                )
+            <label className="field-label" htmlFor="project-name">
+              {copy.queryWorkspace.projectName}
+            </label>
+            <Input
+              id="project-name"
+              value={projectName}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                onProjectNameChange(event.currentTarget.value)
               }
-            >
-              {isLoading && activeDataSource
-                ? copy.queryWorkspace.working
-                : copy.queryWorkspace.warmCache}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onProfileDataSource}
-              disabled={
-                isPersisting ||
-                isExporting ||
-                isLoading ||
-                !activeDataSource ||
-                !(
-                  activeDataSource.info.cache_path ||
-                  activeDataSource.info.type === "parquet"
-                )
-              }
-            >
-              {isLoading && activeDataSource
-                ? copy.queryWorkspace.working
-                : copy.queryWorkspace.profileData}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onExportQueryResult}
-              disabled={
-                isPersisting ||
-                isExporting ||
-                isLoading ||
-                isRunningQuery ||
-                !queryResult
-              }
-            >
-              {isExporting
-                ? copy.queryWorkspace.exporting
-                : copy.queryWorkspace.exportCsv}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onExportQueryResultXlsx}
-              disabled={
-                isPersisting ||
-                isExporting ||
-                isLoading ||
-                isRunningQuery ||
-                !queryResult
-              }
-            >
-              {isExporting
-                ? copy.queryWorkspace.exporting
-                : copy.queryWorkspace.exportXlsx}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={onExportQueryResultPdf}
-              disabled={
-                isPersisting ||
-                isExporting ||
-                isLoading ||
-                isRunningQuery ||
-                !queryResult
-              }
-            >
-              {isExporting
-                ? copy.queryWorkspace.exporting
-                : copy.queryWorkspace.exportPdf}
-            </Button>
-            <Button
-              variant="default"
-              onClick={onRunQuery}
-              disabled={
-                isPersisting ||
-                isExporting ||
-                isLoading ||
-                isRunningQuery ||
-                !builtQuery
-              }
-            >
-              {isRunningQuery
-                ? copy.queryWorkspace.running
-                : copy.queryWorkspace.runQuery}
-            </Button>
-            {activeExportJobId ? (
-              <Button variant="ghost" onClick={onCancelExport}>
-                {copy.queryWorkspace.cancelExport}
-              </Button>
-            ) : null}
-          </div>
-          {error ? (
-            <ErrorBanner
-              title={error.title}
-              message={error.message}
-              details={error.details}
-              code={error.code}
+              placeholder={copy.queryWorkspace.projectNamePlaceholder}
+              autoComplete="off"
             />
-          ) : null}
-          {!error && status ? (
-            <p className="status-message success">{status}</p>
-          ) : null}
+            <p className="helper-text mono-copy">
+              {copy.queryWorkspace.projectId(projectId)}
+            </p>
+            <div className="action-row">
+              <Button
+                variant="secondary"
+                onClick={onSaveProject}
+                disabled={isPersisting}
+              >
+                {isPersisting
+                  ? copy.queryWorkspace.working
+                  : copy.queryWorkspace.saveProject}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onImportProject}
+                disabled={isPersisting || isExporting || isLoading}
+              >
+                {isPersisting
+                  ? copy.queryWorkspace.working
+                  : copy.queryWorkspace.importProjectJson}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onSaveDashboardView}
+                disabled={isPersisting || isLoading || !activeDataSource}
+              >
+                {copy.queryWorkspace.saveDashboardView}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onRestoreProject}
+                disabled={isPersisting || isLoading || !projectId.trim()}
+              >
+                {copy.queryWorkspace.openCurrentProject}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onExportProject}
+                disabled={isPersisting || isExporting || isLoading}
+              >
+                {isExporting
+                  ? copy.queryWorkspace.exporting
+                  : copy.queryWorkspace.exportProjectJson}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onWarmDataSourceCache}
+                disabled={
+                  isPersisting ||
+                  isExporting ||
+                  isLoading ||
+                  !activeDataSource ||
+                  !(
+                    activeDataSource.info.cache_path ||
+                    activeDataSource.info.type === "parquet"
+                  )
+                }
+              >
+                {isLoading && activeDataSource
+                  ? copy.queryWorkspace.working
+                  : copy.queryWorkspace.warmCache}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onProfileDataSource}
+                disabled={
+                  isPersisting ||
+                  isExporting ||
+                  isLoading ||
+                  !activeDataSource ||
+                  !(
+                    activeDataSource.info.cache_path ||
+                    activeDataSource.info.type === "parquet"
+                  )
+                }
+              >
+                {isLoading && activeDataSource
+                  ? copy.queryWorkspace.working
+                  : copy.queryWorkspace.profileData}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onExportQueryResult}
+                disabled={
+                  isPersisting ||
+                  isExporting ||
+                  isLoading ||
+                  isRunningQuery ||
+                  !queryResult
+                }
+              >
+                {isExporting
+                  ? copy.queryWorkspace.exporting
+                  : copy.queryWorkspace.exportCsv}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onExportQueryResultXlsx}
+                disabled={
+                  isPersisting ||
+                  isExporting ||
+                  isLoading ||
+                  isRunningQuery ||
+                  !queryResult
+                }
+              >
+                {isExporting
+                  ? copy.queryWorkspace.exporting
+                  : copy.queryWorkspace.exportXlsx}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={onExportQueryResultPdf}
+                disabled={
+                  isPersisting ||
+                  isExporting ||
+                  isLoading ||
+                  isRunningQuery ||
+                  !queryResult
+                }
+              >
+                {isExporting
+                  ? copy.queryWorkspace.exporting
+                  : copy.queryWorkspace.exportPdf}
+              </Button>
+              <Button
+                variant="default"
+                onClick={onRunQuery}
+                disabled={
+                  isPersisting ||
+                  isExporting ||
+                  isLoading ||
+                  isRunningQuery ||
+                  !builtQuery
+                }
+              >
+                {isRunningQuery
+                  ? copy.queryWorkspace.running
+                  : copy.queryWorkspace.runQuery}
+              </Button>
+              {activeExportJobId ? (
+                <Button variant="ghost" onClick={onCancelExport}>
+                  {copy.queryWorkspace.cancelExport}
+                </Button>
+              ) : null}
+            </div>
+            {error ? (
+              <ErrorBanner
+                title={error.title}
+                message={error.message}
+                details={error.details}
+                code={error.code}
+              />
+            ) : null}
+            {!error && status ? (
+              <p className="status-message success">{status}</p>
+            ) : null}
           </div>
         </div>
 
         {activeDataSource ? (
           <>
-            <div className="recommendation-panel">
-              <div className="flex items-center justify-between gap-4 max-md:flex-col max-md:items-start">
-                <div className="grid gap-1">
-                  <h3 className="m-0 text-lg font-semibold tracking-tight text-slate-950">
-                    {copy.queryWorkspace.backendRecommendation}
-                  </h3>
-                  <p className="helper-text">
-                    {copy.queryWorkspace.backendRecommendationDescription}
-                  </p>
-                </div>
-                <Button
-                  variant="secondary"
-                  onClick={onApplyRecommendation}
-                  disabled={!recommendation || isLoadingRecommendation}
-                >
-                  {isLoadingRecommendation
-                    ? copy.queryWorkspace.loading
-                    : copy.queryWorkspace.applyRecommendation}
-                </Button>
-              </div>
-              {recommendation ? (
-                <div className="grid gap-2">
-                  <strong className="text-base text-slate-900">
-                    {recommendation.suggestion.title}
-                  </strong>
-                  <p className="helper-text">
-                    {recommendation.suggestion.reason}
-                  </p>
-                  <p className="helper-text">
-                    {copy.queryWorkspace.suggestedChart(
-                      recommendation.chart_spec?.chart_type ??
-                        recommendation.suggestion.chart_hint,
-                    )}
-                  </p>
-                </div>
-              ) : (
-                <p className="empty-state">{copy.queryWorkspace.noRecommendation}</p>
-              )}
-            </div>
             {showHeavyWorkspaceSections ? (
               <div className="workspace-main-grid">
                 <div className="workspace-side-column">
@@ -436,11 +399,6 @@ function QueryWorkspace({
                     activeDataSource={activeDataSource}
                     queryBuilder={queryBuilder}
                     numericColumns={numericColumns}
-                    onUpdateQueryBuilder={onUpdateQueryBuilder}
-                  />
-                  <FilterBar
-                    activeDataSource={activeDataSource}
-                    queryBuilder={queryBuilder}
                     onUpdateQueryBuilder={onUpdateQueryBuilder}
                   />
                 </div>
@@ -466,6 +424,54 @@ function QueryWorkspace({
                       />
                     </Panel>
                   ) : null}
+                </div>
+                <div className="workspace-aux-column">
+                  <section className="recommendation-panel">
+                    <div className="flex items-center justify-between gap-4 max-md:flex-col max-md:items-start">
+                      <div className="grid gap-1">
+                        <h3 className="m-0 text-lg font-semibold text-[#1F2D3D]">
+                          {copy.queryWorkspace.backendRecommendation}
+                        </h3>
+                        <p className="helper-text">
+                          {copy.queryWorkspace.backendRecommendationDescription}
+                        </p>
+                      </div>
+                      <Button
+                        variant="secondary"
+                        onClick={onApplyRecommendation}
+                        disabled={!recommendation || isLoadingRecommendation}
+                      >
+                        {isLoadingRecommendation
+                          ? copy.queryWorkspace.loading
+                          : copy.queryWorkspace.applyRecommendation}
+                      </Button>
+                    </div>
+                    {recommendation ? (
+                      <div className="grid gap-2">
+                        <strong className="text-base text-[#1F2D3D]">
+                          {recommendation.suggestion.title}
+                        </strong>
+                        <p className="helper-text">
+                          {recommendation.suggestion.reason}
+                        </p>
+                        <p className="helper-text">
+                          {copy.queryWorkspace.suggestedChart(
+                            recommendation.chart_spec?.chart_type ??
+                              recommendation.suggestion.chart_hint,
+                          )}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="empty-state">
+                        {copy.queryWorkspace.noRecommendation}
+                      </p>
+                    )}
+                  </section>
+                  <FilterBar
+                    activeDataSource={activeDataSource}
+                    queryBuilder={queryBuilder}
+                    onUpdateQueryBuilder={onUpdateQueryBuilder}
+                  />
                 </div>
               </div>
             ) : (

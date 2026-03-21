@@ -13,7 +13,7 @@ export function Card({
   return (
     <Component
       className={cn(
-        "rounded-[1.5rem] border border-white/60 bg-white/78 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl",
+        "panel-card panel-grid rounded-[4px] border border-[#E7EDF4] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]",
         className,
       )}
       {...props}

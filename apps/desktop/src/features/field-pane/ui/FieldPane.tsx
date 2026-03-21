@@ -74,15 +74,15 @@ function FieldPane({
   }
 
   return (
-    <section className="grid gap-5 rounded-3xl bg-slate-100/70 p-5">
+    <section className="grid gap-5">
       <div className="flex items-center justify-between gap-4 max-md:flex-col max-md:items-start">
         <div className="grid gap-1">
-          <h3 className="m-0 text-lg font-semibold tracking-tight text-slate-950">
+          <h3 className="m-0 text-lg font-semibold text-[#1F2D3D]">
             {copy.fieldPane.title}
           </h3>
           <p className="helper-text">{copy.fieldPane.description}</p>
         </div>
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-[#7A8A9A]">
           {`${activeDataSource.columns.length} ${copy.fieldPane.columns}`}
         </span>
       </div>

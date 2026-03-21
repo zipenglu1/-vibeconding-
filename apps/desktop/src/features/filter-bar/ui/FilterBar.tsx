@@ -40,12 +40,12 @@ function FilterBar({
     <section className="filter-panel">
       <div className="flex items-center justify-between gap-4 max-md:flex-col max-md:items-start">
         <div className="grid gap-1">
-          <h3 className="m-0 text-lg font-semibold tracking-tight text-slate-950">
+          <h3 className="m-0 text-lg font-semibold text-[#1F2D3D]">
             {copy.filterBar.title}
           </h3>
           <p className="helper-text">{copy.filterBar.description}</p>
         </div>
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-[#7A8A9A]">
           {queryBuilder.filterEnabled
             ? copy.filterBar.enabled
             : copy.filterBar.disabled}

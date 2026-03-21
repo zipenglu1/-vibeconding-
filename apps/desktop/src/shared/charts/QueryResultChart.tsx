@@ -30,7 +30,9 @@ function QueryResultChart({
 }: QueryResultChartProps) {
   const chartRef = useRef<ReactEChartsCore | null>(null);
 
-  const chartModel = result ? createChartModel(result, chartSpec ?? null) : null;
+  const chartModel = result
+    ? createChartModel(result, chartSpec ?? null)
+    : null;
   if (!chartModel) {
     return (
       <div className="chart-empty">
@@ -43,10 +45,27 @@ function QueryResultChart({
   }
 
   const option: EChartsOption = {
+    animationDuration: 760,
+    animationDurationUpdate: 420,
+    animationEasing: "cubicOut",
+    animationEasingUpdate: "cubicOut",
     tooltip: {
       trigger: "axis",
       axisPointer: {
         type: variant === "line" ? "line" : "shadow",
+        lineStyle: {
+          color: "rgba(0, 122, 255, 0.45)",
+          width: 1,
+        },
+        shadowStyle: {
+          color: "rgba(0, 122, 255, 0.06)",
+        },
+      },
+      backgroundColor: "rgba(255, 255, 255, 0.96)",
+      borderColor: "rgba(0, 122, 255, 0.24)",
+      borderWidth: 1,
+      textStyle: {
+        color: "#1F2D3D",
       },
     },
     grid: {
@@ -58,14 +77,42 @@ function QueryResultChart({
     xAxis: {
       type: "category",
       data: chartModel.categories,
+      boundaryGap: variant === "bar",
+      axisLine: {
+        lineStyle: {
+          color: "rgba(148, 163, 184, 0.4)",
+        },
+      },
+      axisTick: {
+        show: false,
+      },
       axisLabel: {
         interval: 0,
         rotate: chartModel.categories.length > 4 ? 20 : 0,
+        color: "#6B7B8E",
+        fontFamily:
+          "'JetBrains Mono', 'Roboto Mono', 'Cascadia Code', monospace",
       },
     },
     yAxis: {
       type: "value",
       name: chartModel.measureLabel,
+      nameTextStyle: {
+        color: "#7A8A9A",
+        fontFamily:
+          "'JetBrains Mono', 'Roboto Mono', 'Cascadia Code', monospace",
+      },
+      splitLine: {
+        lineStyle: {
+          color: "rgba(224, 230, 237, 0.9)",
+          type: "dashed",
+        },
+      },
+      axisLabel: {
+        color: "#7A8A9A",
+        fontFamily:
+          "'JetBrains Mono', 'Roboto Mono', 'Cascadia Code', monospace",
+      },
     },
     series: [
       {
@@ -73,15 +120,40 @@ function QueryResultChart({
         type: variant,
         data: chartModel.values,
         smooth: variant === "line",
+        showSymbol: variant === "line",
+        symbolSize: 9,
         itemStyle: {
-          color: "#1f5eff",
+          color: "#007AFF",
         },
+        lineStyle:
+          variant === "line"
+            ? {
+                width: 3,
+                color: "#007AFF",
+              }
+            : undefined,
         areaStyle:
           variant === "line"
             ? {
-                color: "rgba(31, 94, 255, 0.12)",
+                color: {
+                  type: "linear",
+                  x: 0,
+                  y: 0,
+                  x2: 0,
+                  y2: 1,
+                  colorStops: [
+                    { offset: 0, color: "rgba(0, 122, 255, 0.16)" },
+                    { offset: 1, color: "rgba(0, 122, 255, 0.01)" },
+                  ],
+                },
               }
             : undefined,
+        barMaxWidth: 42,
+        emphasis: {
+          itemStyle: {
+            color: "#0067D6",
+          },
+        },
       },
     ],
   };
@@ -145,7 +217,10 @@ function createChartModel(
   };
 }
 
-function resolveCategoryField(result: QueryResult, chartSpec: ChartSpec | null) {
+function resolveCategoryField(
+  result: QueryResult,
+  chartSpec: ChartSpec | null,
+) {
   const candidates = [
     chartSpec?.category_axis?.label,
     chartSpec?.category_axis?.field,
@@ -194,9 +269,11 @@ function resolveMeasureLabel(
     fallbackField,
   ].filter((value): value is string => Boolean(value));
 
-  return candidates.find((candidate) => result.columns.includes(candidate)) ??
+  return (
+    candidates.find((candidate) => result.columns.includes(candidate)) ??
     candidates[0] ??
-    fallbackField;
+    fallbackField
+  );
 }
 
 function normalizeCategoryValue(value: unknown): string | null {

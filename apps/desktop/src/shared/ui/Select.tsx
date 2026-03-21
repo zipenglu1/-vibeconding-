@@ -8,7 +8,7 @@ function Select({
   return (
     <select
       className={cn(
-        "h-11 w-full rounded-xl border border-slate-200 bg-white/85 px-4 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-sky-100",
+        "input-panel h-10 w-full rounded-[4px] border border-[#D6E0EA] bg-white px-3 py-2 text-sm text-[#1F2D3D] outline-none transition focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/10",
         className,
       )}
       {...props}

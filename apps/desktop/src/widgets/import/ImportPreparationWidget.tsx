@@ -47,17 +47,40 @@ function ImportPreparationWidget({
     <>
       <Panel className="import-stage-hero">
         <div className="import-stage-hero-copy">
-          <div className="grid gap-2">
+          <div className="hero-stack">
             <p className="import-stage-eyebrow">{surfaceCopy.eyebrow}</p>
-            <h1 className="m-0 text-[clamp(2rem,4vw,3.35rem)] font-semibold leading-none tracking-tight text-slate-950">
-              {surfaceCopy.title}
-            </h1>
-            <p className="m-0 max-w-3xl text-base text-slate-600">
-              {surfaceCopy.description}
-            </p>
+            <h1 className="hero-title">{surfaceCopy.title}</h1>
+            <p className="hero-subcopy">{surfaceCopy.description}</p>
+            <div className="hero-status-strip">
+              <div className="hero-status-chip">
+                <span>{language === "zh" ? "数据接入" : "Data ingress"}</span>
+                <strong>{activeDataSource ? "READY" : "PENDING"}</strong>
+                <p>
+                  {activeDataSource
+                    ? activeDataSource.info.name
+                    : language === "zh"
+                      ? "等待本地文件选择"
+                      : "Awaiting local source selection"}
+                </p>
+              </div>
+              <div className="hero-status-chip">
+                <span>{language === "zh" ? "处理模式" : "Process mode"}</span>
+                <strong>{language === "zh" ? "离线" : "OFFLINE"}</strong>
+                <p>
+                  {language === "zh"
+                    ? "缓存与分析均在本地执行"
+                    : "Caching and analysis stay local"}
+                </p>
+              </div>
+              <div className="hero-status-chip">
+                <span>{language === "zh" ? "入口状态" : "Ingress state"}</span>
+                <strong>{isLoading ? "SYNC" : "STANDBY"}</strong>
+                <p>{status || surfaceCopy.stageReady}</p>
+              </div>
+            </div>
           </div>
           <div className="import-stage-language">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            <span className="hero-language-label">
               {copy.hero.languageLabel}
             </span>
             <Select
@@ -70,6 +93,27 @@ function ImportPreparationWidget({
                 setLanguage(value === "zh" ? "zh" : "en")
               }
             />
+            <div className="hero-metrics">
+              <div className="hero-metric">
+                <span>{language === "zh" ? "源数量" : "Source count"}</span>
+                <strong>{String(dataSources.length).padStart(2, "0")}</strong>
+                <small>
+                  {language === "zh" ? "已装载数据源" : "Loaded data sources"}
+                </small>
+              </div>
+              <div className="hero-metric">
+                <span>{language === "zh" ? "缓存预热" : "Cache warmup"}</span>
+                <strong>
+                  {activeDataSource?.info.cache_path ? "LINKED" : "UNSET"}
+                </strong>
+                <small>
+                  {activeDataSource?.info.cache_path ??
+                    (language === "zh"
+                      ? "等待 Parquet 缓存"
+                      : "Awaiting Parquet cache")}
+                </small>
+              </div>
+            </div>
           </div>
         </div>
         {!error && status ? (
